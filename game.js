@@ -4,6 +4,10 @@ const COLS = 10;
 const ROWS = 20;
 const BLOCK = 30;
 
+const BOMB_TYPE = 8;
+const BOMB_CHANCE = 0.06;
+const BOMB_CELL_SCORE = 10;
+
 const COLORS = [
   null,
   '#4dd0e1', // I - cyan
@@ -13,6 +17,7 @@ const COLORS = [
   '#e57373', // Z - red
   '#64b5f6', // J - pale blue
   '#ffb74d', // L - orange
+  '#ff5252', // bomb
 ];
 
 const PIECES = [
@@ -24,6 +29,7 @@ const PIECES = [
   [[5,5,0],[0,5,5],[0,0,0]],                  // Z
   [[6,0,0],[6,6,6],[0,0,0]],                  // J
   [[0,0,7],[7,7,7],[0,0,0]],                  // L
+  [[8]],                                       // bomb
 ];
 
 const LINE_SCORES = [0, 100, 300, 500, 800];
@@ -43,7 +49,7 @@ const overlayScore = document.getElementById('overlay-score');
 const restartBtn = document.getElementById('restart-btn');
 const themeToggle = document.getElementById('theme-toggle');
 
-let board, current, next, score, lines, level, paused, gameOver, lastTime, dropAccum, dropInterval, animId;
+let board, current, next, score, lines, level, paused, gameOver, lastTime, dropAccum, dropInterval, animId, explosionFx;
 let theme = localStorage.getItem('tetris-theme') === 'light' ? 'light' : 'dark';
 
 function createBoard() {
@@ -51,7 +57,7 @@ function createBoard() {
 }
 
 function randomPiece() {
-  const type = Math.floor(Math.random() * 7) + 1;
+  const type = Math.random() < BOMB_CHANCE ? BOMB_TYPE : Math.floor(Math.random() * 7) + 1;
   const shape = PIECES[type].map(row => [...row]);
   return { type, shape, x: Math.floor(COLS / 2) - Math.floor(shape[0].length / 2), y: 0 };
 }
@@ -139,8 +145,28 @@ function softDrop() {
   }
 }
 
+function explodeBomb() {
+  for (let dr = -1; dr <= 1; dr++) {
+    for (let dc = -1; dc <= 1; dc++) {
+      const nx = current.x + dc;
+      const ny = current.y + dr;
+      if (nx < 0 || nx >= COLS || ny < 0 || ny >= ROWS) continue;
+      if (board[ny][nx]) {
+        board[ny][nx] = 0;
+        score += BOMB_CELL_SCORE;
+      }
+    }
+  }
+  explosionFx = { x: current.x, y: current.y, ttl: 250, max: 250 };
+  updateHUD();
+}
+
 function lockPiece() {
-  merge();
+  if (current.type === BOMB_TYPE) {
+    explodeBomb();
+  } else {
+    merge();
+  }
   clearLines();
   spawn();
 }
@@ -169,6 +195,18 @@ function drawBlock(context, x, y, colorIndex, size, alpha) {
   // highlight
   context.fillStyle = 'rgba(255,255,255,0.12)';
   context.fillRect(x * size + 1, y * size + 1, size - 2, 4);
+  if (colorIndex === BOMB_TYPE) {
+    const cx = x * size + size / 2;
+    const cy = y * size + size / 2;
+    context.beginPath();
+    context.arc(cx, cy, size * 0.28, 0, Math.PI * 2);
+    context.fillStyle = '#1a1a1a';
+    context.fill();
+    context.beginPath();
+    context.arc(cx - size * 0.08, cy - size * 0.08, size * 0.07, 0, Math.PI * 2);
+    context.fillStyle = 'rgba(255,255,255,0.6)';
+    context.fill();
+  }
   context.globalAlpha = 1;
 }
 
@@ -209,6 +247,25 @@ function draw() {
   for (let r = 0; r < current.shape.length; r++)
     for (let c = 0; c < current.shape[r].length; c++)
       drawBlock(ctx, current.x + c, current.y + r, current.shape[r][c], BLOCK);
+
+  drawExplosion();
+}
+
+function drawExplosion() {
+  if (!explosionFx) return;
+  const { x, y, ttl, max } = explosionFx;
+  const alpha = Math.max(0, ttl / max);
+  const cx = (x + 0.5) * BLOCK;
+  const cy = (y + 0.5) * BLOCK;
+  const radius = BLOCK * 1.8 * (1 - alpha * 0.3);
+  const gradient = ctx.createRadialGradient(cx, cy, 0, cx, cy, radius);
+  gradient.addColorStop(0, `rgba(255, 220, 120, ${0.9 * alpha})`);
+  gradient.addColorStop(0.5, `rgba(255, 100, 60, ${0.6 * alpha})`);
+  gradient.addColorStop(1, 'rgba(255, 100, 60, 0)');
+  ctx.fillStyle = gradient;
+  ctx.beginPath();
+  ctx.arc(cx, cy, radius, 0, Math.PI * 2);
+  ctx.fill();
 }
 
 function drawNext() {
@@ -259,6 +316,10 @@ function togglePause() {
 function loop(ts) {
   const dt = ts - lastTime;
   lastTime = ts;
+  if (explosionFx) {
+    explosionFx.ttl -= dt;
+    if (explosionFx.ttl <= 0) explosionFx = null;
+  }
   dropAccum += dt;
   if (dropAccum >= dropInterval) {
     dropAccum = 0;
@@ -281,6 +342,7 @@ function init() {
   gameOver = false;
   dropInterval = 1000;
   dropAccum = 0;
+  explosionFx = null;
   lastTime = performance.now();
   next = randomPiece();
   spawn();
