@@ -26,6 +26,9 @@
   --switch-bg: #22223a;
   --switch-border: #3a3a5a;
   --switch-knob: #7aa2f7;
+  --select-bg: #22223a;
+  --select-border: #3a3a5a;
+  --select-color: #e0e0e0;
 }
 
 body[data-theme="light"] {
@@ -50,6 +53,9 @@ body[data-theme="light"] {
   --switch-bg: #d8d8e4;
   --switch-border: #c8c8d8;
   --switch-knob: #3a5fd0;
+  --select-bg: #ffffff;
+  --select-border: #c8c8d8;
+  --select-color: #23232f;
 }
 
 body {
@@ -173,6 +179,24 @@ body {
 
 .theme-switch input:checked + .theme-slider::before {
   transform: translateX(18px);
+}
+
+/* ---- Selector de skin ---- */
+.skin-select {
+  background: var(--select-bg);
+  border: 1px solid var(--select-border);
+  color: var(--select-color);
+  border-radius: 4px;
+  padding: 5px 6px;
+  font-size: 12px;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s, color 0.2s;
+}
+
+.skin-select:focus {
+  outline: 1px solid var(--switch-knob);
+  outline-offset: 1px;
 }
 
 /* ---- Controles ---- */
