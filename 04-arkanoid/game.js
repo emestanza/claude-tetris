@@ -88,6 +88,18 @@ function update(dt) {
     ball.y = 0;
     ball.vy = Math.abs(ball.vy);
   }
+  const paddle = state.paddle;
+  if (
+    ball.vy > 0 &&
+    ball.x + ball.size > paddle.x && ball.x < paddle.x + paddle.w &&
+    ball.y + ball.size > paddle.y && ball.y < paddle.y + paddle.h
+  ) {
+    const hit = (ball.x + ball.size / 2 - (paddle.x + paddle.w / 2)) / (paddle.w / 2);
+    const angle = Math.max(-1, Math.min(1, hit)) * MAX_BOUNCE_ANGLE;
+    ball.vx = BALL_SPEED * Math.sin(angle);
+    ball.vy = -BALL_SPEED * Math.cos(angle);
+    ball.y = paddle.y - ball.size;
+  }
   // Provisional hasta el paso 8 (vidas): la pelota perdida vuelve al paddle.
   if (ball.y > H) {
     state.status = 'ready';
