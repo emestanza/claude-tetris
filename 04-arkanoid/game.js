@@ -89,7 +89,18 @@ function stickBall() {
   ball.y = paddle.y - ball.size;
 }
 
+function restartGame() {
+  state.lives = START_LIVES;
+  state.bricks = createBricks();
+  state.status = 'ready';
+  stickBall();
+}
+
 function launchBall() {
+  if (state.status === 'gameover' || state.status === 'won') {
+    restartGame();
+    return;
+  }
   if (state.status !== 'ready') return;
   const { ball } = state;
   ball.stuck = false;
@@ -144,6 +155,11 @@ function update(dt) {
     playSound(bounceSound);
   }
   bounceOffBricks();
+  if (state.bricks.every((brick) => !brick.alive)) {
+    state.status = 'won';
+    stickBall();
+    return;
+  }
 
   const paddle = state.paddle;
   if (
@@ -158,9 +174,9 @@ function update(dt) {
     ball.y = paddle.y - ball.size;
     playSound(bounceSound);
   }
-  // Provisional hasta el paso 8 (vidas): la pelota perdida vuelve al paddle.
   if (ball.y > H) {
-    state.status = 'ready';
+    state.lives--;
+    state.status = state.lives > 0 ? 'ready' : 'gameover';
     stickBall();
   }
 }
@@ -174,6 +190,25 @@ function draw() {
   drawSprite(ctx, 'paddle', p.x, p.y, p.w, p.h);
   const b = state.ball;
   drawSprite(ctx, 'ball', b.x, b.y, b.size, b.size);
+
+  ctx.fillStyle = '#fff';
+  ctx.font = '20px sans-serif';
+  ctx.textAlign = 'left';
+  ctx.fillText('Vidas: ' + state.lives, 20, 32);
+
+  if (state.status === 'gameover') drawOverlay('Game over');
+  if (state.status === 'won') drawOverlay('Victoria');
+}
+
+function drawOverlay(title) {
+  ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+  ctx.fillRect(0, 0, W, H);
+  ctx.fillStyle = '#fff';
+  ctx.textAlign = 'center';
+  ctx.font = 'bold 56px sans-serif';
+  ctx.fillText(title, W / 2, H / 2);
+  ctx.font = '20px sans-serif';
+  ctx.fillText('Espacio o clic para reiniciar', W / 2, H / 2 + 40);
 }
 
 function loop(time) {
