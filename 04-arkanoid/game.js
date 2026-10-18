@@ -17,6 +17,7 @@ const state = {
   paddle: { x: (W - PADDLE_W) / 2, y: PADDLE_Y, w: PADDLE_W, h: PADDLE_H },
   ball: { x: 0, y: 0, vx: 0, vy: 0, size: BALL_SIZE, stuck: true }, // stuck: sigue al paddle
   bricks: [], // { x, y, w, h, color, alive }
+  explosions: [], // { x, y, w, h, color, elapsed }, elapsed en ms
 };
 
 const bounceSound = new Audio('assets/sounds/ball-bounce.mp3');
@@ -63,6 +64,7 @@ function bounceOffBricks() {
       ball.y + ball.size <= brick.y || ball.y >= brick.y + brick.h
     ) continue;
     brick.alive = false;
+    state.explosions.push({ x: brick.x, y: brick.y, w: brick.w, h: brick.h, color: brick.color, elapsed: 0 });
     playSound(breakSound);
     // El eje de menor penetración decide si el golpe es lateral o vertical.
     const overlapX = Math.min(ball.x + ball.size - brick.x, brick.x + brick.w - ball.x);
@@ -136,6 +138,9 @@ canvas.addEventListener('mousemove', (e) => {
 
 function update(dt) {
   if (state.status === 'paused') return;
+  for (const explosion of state.explosions) explosion.elapsed += dt * 1000;
+  state.explosions = state.explosions.filter((explosion) => explosion.elapsed < EXPLOSION_DURATION);
+
   const left = keys.has('ArrowLeft') || keys.has('KeyA');
   const right = keys.has('ArrowRight') || keys.has('KeyD');
   state.paddle.x += (right - left) * PADDLE_SPEED * dt;
@@ -193,6 +198,10 @@ function draw() {
   ctx.clearRect(0, 0, W, H);
   for (const brick of state.bricks) {
     if (brick.alive) drawSprite(ctx, 'block_' + brick.color, brick.x, brick.y, brick.w, brick.h);
+  }
+  for (const explosion of state.explosions) {
+    const frame = Math.min(3, Math.floor(explosion.elapsed / EXPLOSION_DURATION * 4));
+    drawFrame(ctx, EXPLOSION_FRAMES[explosion.color][frame], explosion.x, explosion.y, explosion.w, explosion.h);
   }
   const p = state.paddle;
   drawSprite(ctx, 'paddle', p.x, p.y, p.w, p.h);
