@@ -19,6 +19,14 @@ const state = {
   bricks: [], // { x, y, w, h, color, alive }
 };
 
+const bounceSound = new Audio('assets/sounds/ball-bounce.mp3');
+const breakSound = new Audio('assets/sounds/break-sound.mp3');
+
+function playSound(sound) {
+  sound.currentTime = 0;
+  sound.play().catch(() => {}); // el navegador puede rechazarlo antes de una interacción
+}
+
 const LAUNCH_ANGLE = 30 * Math.PI / 180; // respecto a la vertical, hacia la derecha
 
 let lastTime = 0;
@@ -55,6 +63,7 @@ function bounceOffBricks() {
       ball.y + ball.size <= brick.y || ball.y >= brick.y + brick.h
     ) continue;
     brick.alive = false;
+    playSound(breakSound);
     // El eje de menor penetración decide si el golpe es lateral o vertical.
     const overlapX = Math.min(ball.x + ball.size - brick.x, brick.x + brick.w - ball.x);
     const overlapY = Math.min(ball.y + ball.size - brick.y, brick.y + brick.h - ball.y);
@@ -123,13 +132,16 @@ function update(dt) {
   if (ball.x < 0) {
     ball.x = 0;
     ball.vx = Math.abs(ball.vx);
+    playSound(bounceSound);
   } else if (ball.x + ball.size > W) {
     ball.x = W - ball.size;
     ball.vx = -Math.abs(ball.vx);
+    playSound(bounceSound);
   }
   if (ball.y < 0) {
     ball.y = 0;
     ball.vy = Math.abs(ball.vy);
+    playSound(bounceSound);
   }
   bounceOffBricks();
 
@@ -144,6 +156,7 @@ function update(dt) {
     ball.vx = BALL_SPEED * Math.sin(angle);
     ball.vy = -BALL_SPEED * Math.cos(angle);
     ball.y = paddle.y - ball.size;
+    playSound(bounceSound);
   }
   // Provisional hasta el paso 8 (vidas): la pelota perdida vuelve al paddle.
   if (ball.y > H) {
