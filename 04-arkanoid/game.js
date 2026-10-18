@@ -12,7 +12,7 @@ const canvas = document.getElementById('board');
 const ctx = canvas.getContext('2d');
 
 const state = {
-  status: 'ready', // 'ready' | 'playing' | 'paused' | 'gameover' | 'won'
+  status: 'ready', // 'ready' | 'playing' | 'paused' | 'clearing' | 'gameover' | 'won'
   lives: START_LIVES,
   paddle: { x: (W - PADDLE_W) / 2, y: PADDLE_Y, w: PADDLE_W, h: PADDLE_H },
   ball: { x: 0, y: 0, vx: 0, vy: 0, size: BALL_SIZE, stuck: true }, // stuck: sigue al paddle
@@ -142,6 +142,15 @@ function update(dt) {
   for (const explosion of state.explosions) explosion.elapsed += dt * 1000;
   state.explosions = state.explosions.filter((explosion) => explosion.elapsed < EXPLOSION_DURATION);
 
+  // Último bloque destruido: la pelota queda quieta hasta que acabe su explosión.
+  if (state.status === 'clearing') {
+    if (state.explosions.length === 0) {
+      state.status = 'won';
+      stickBall();
+    }
+    return;
+  }
+
   const left = keys.has('ArrowLeft') || keys.has('KeyA');
   const right = keys.has('ArrowRight') || keys.has('KeyD');
   state.paddle.x += (right - left) * PADDLE_SPEED * dt;
@@ -170,8 +179,7 @@ function update(dt) {
   }
   bounceOffBricks();
   if (state.bricks.every((brick) => !brick.alive)) {
-    state.status = 'won';
-    stickBall();
+    state.status = 'clearing';
     return;
   }
 
