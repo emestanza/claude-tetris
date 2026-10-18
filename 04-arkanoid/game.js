@@ -15,7 +15,10 @@ const state = {
   status: 'ready', // 'ready' | 'playing' | 'paused' | 'gameover' | 'won'
   lives: START_LIVES,
   paddle: { x: (W - PADDLE_W) / 2, y: PADDLE_Y, w: PADDLE_W, h: PADDLE_H },
+  ball: { x: 0, y: 0, vx: 0, vy: 0, size: BALL_SIZE, stuck: true }, // stuck: sigue al paddle
 };
+
+const LAUNCH_ANGLE = 30 * Math.PI / 180; // respecto a la vertical, hacia la derecha
 
 let lastTime = 0;
 const keys = new Set();
@@ -25,8 +28,34 @@ function clampPaddle() {
   p.x = Math.max(0, Math.min(W - p.w, p.x));
 }
 
-document.addEventListener('keydown', (e) => keys.add(e.code));
+function stickBall() {
+  const { paddle, ball } = state;
+  ball.stuck = true;
+  ball.vx = 0;
+  ball.vy = 0;
+  ball.x = paddle.x + (paddle.w - ball.size) / 2;
+  ball.y = paddle.y - ball.size;
+}
+
+function launchBall() {
+  if (state.status !== 'ready') return;
+  const { ball } = state;
+  ball.stuck = false;
+  ball.vx = BALL_SPEED * Math.sin(LAUNCH_ANGLE);
+  ball.vy = -BALL_SPEED * Math.cos(LAUNCH_ANGLE);
+  state.status = 'playing';
+}
+
+document.addEventListener('keydown', (e) => {
+  keys.add(e.code);
+  if (e.code === 'Space') {
+    e.preventDefault();
+    launchBall();
+  }
+});
 document.addEventListener('keyup', (e) => keys.delete(e.code));
+
+canvas.addEventListener('click', launchBall);
 
 canvas.addEventListener('mousemove', (e) => {
   const rect = canvas.getBoundingClientRect();
@@ -40,12 +69,38 @@ function update(dt) {
   const right = keys.has('ArrowRight') || keys.has('KeyD');
   state.paddle.x += (right - left) * PADDLE_SPEED * dt;
   clampPaddle();
+
+  const { ball } = state;
+  if (ball.stuck) {
+    stickBall();
+    return;
+  }
+  ball.x += ball.vx * dt;
+  ball.y += ball.vy * dt;
+  if (ball.x < 0) {
+    ball.x = 0;
+    ball.vx = Math.abs(ball.vx);
+  } else if (ball.x + ball.size > W) {
+    ball.x = W - ball.size;
+    ball.vx = -Math.abs(ball.vx);
+  }
+  if (ball.y < 0) {
+    ball.y = 0;
+    ball.vy = Math.abs(ball.vy);
+  }
+  // Provisional hasta el paso 8 (vidas): la pelota perdida vuelve al paddle.
+  if (ball.y > H) {
+    state.status = 'ready';
+    stickBall();
+  }
 }
 
 function draw() {
   ctx.clearRect(0, 0, W, H);
   const p = state.paddle;
   drawSprite(ctx, 'paddle', p.x, p.y, p.w, p.h);
+  const b = state.ball;
+  drawSprite(ctx, 'ball', b.x, b.y, b.size, b.size);
 }
 
 function loop(time) {
