@@ -2,21 +2,90 @@ const W = 800, H = 600;
 const COLS = 12, ROWS = 6;
 const BRICK_W = 56, BRICK_H = 28, BRICK_GAP = 4;
 const BRICK_OFFSET_X = 42, BRICK_OFFSET_Y = 60;
-const BRICK_COLORS = ['red', 'yellow', 'cyan', 'magenta', 'hotpink', 'green']; // una por fila, de arriba abajo
 const PADDLE_W = 120, PADDLE_H = 14, PADDLE_Y = 560, PADDLE_SPEED = 500; // px/s
-const BALL_SIZE = 16, BALL_SPEED = 380; // px/s
+const BALL_SIZE = 16; // px
 const MAX_BOUNCE_ANGLE = 60 * Math.PI / 180; // respecto a la vertical
 const START_LIVES = 3;
+
+// Leyenda de los mapas: una letra por celda, '.' es hueco.
+const LEGEND = {
+  r: 'red', y: 'yellow', c: 'cyan', m: 'magenta', h: 'hotpink', g: 'green',
+  X: 'gray', // 2 golpes
+};
+const GRAY_HP = 2;
+
+const LEVELS = [
+  {
+    speed: 380, // px/s
+    map: [
+      'rrrrrrrrrrrr',
+      'yyyyyyyyyyyy',
+      'cccccccccccc',
+      'mmmmmmmmmmmm',
+      'hhhhhhhhhhhh',
+      'gggggggggggg',
+    ],
+  },
+  {
+    speed: 418,
+    map: [
+      'r.r.r.r.r.r.',
+      '.y.y.y.y.y.y',
+      'c.c.c.c.c.c.',
+      '.m.m.m.m.m.m',
+      'h.h.h.h.h.h.',
+      '.g.g.g.g.g.g',
+    ],
+  },
+  {
+    speed: 456,
+    map: [
+      '.....XX.....',
+      '....rrrr....',
+      '...yyyyyy...',
+      '..cccccccc..',
+      '.mmmmmmmmmm.',
+      'hhhhhhhhhhhh',
+      'gggggggggggg',
+    ],
+  },
+  {
+    speed: 494,
+    map: [
+      'X..........X',
+      'XrrrrrrrrrrX',
+      'XyyyyyyyyyyX',
+      'X.cccccccc.X',
+      'XmmmmmmmmmmX',
+      'XhhhhhhhhhhX',
+      'XggggggggggX',
+    ],
+  },
+  {
+    speed: 532,
+    map: [
+      'XXXXXXXXXXXX',
+      'rrrrrrrrrrrr',
+      'y.yy.yy.yy.y',
+      'cccccccccccc',
+      'm.mm.mm.mm.m',
+      'hhhhhhhhhhhh',
+      'X..........X',
+      'gggggggggggg',
+    ],
+  },
+];
 
 const canvas = document.getElementById('board');
 const ctx = canvas.getContext('2d');
 
 const state = {
-  status: 'ready', // 'ready' | 'playing' | 'paused' | 'clearing' | 'gameover' | 'won'
+  status: 'ready', // 'ready' | 'playing' | 'paused' | 'clearing' | 'intro' | 'gameover' | 'won'
+  level: 1, // 1..LEVELS.length
   lives: START_LIVES,
   paddle: { x: (W - PADDLE_W) / 2, y: PADDLE_Y, w: PADDLE_W, h: PADDLE_H },
   ball: { x: 0, y: 0, vx: 0, vy: 0, size: BALL_SIZE, stuck: true }, // stuck: sigue al paddle
-  bricks: [], // { x, y, w, h, color, alive }
+  bricks: [], // { x, y, w, h, color, alive, hp }
   explosions: [], // { x, y, w, h, color, elapsed }, elapsed en ms
 };
 
@@ -38,17 +107,25 @@ function clampPaddle() {
   p.x = Math.max(0, Math.min(W - p.w, p.x));
 }
 
+function ballSpeed() {
+  return LEVELS[state.level - 1].speed;
+}
+
 function createBricks() {
   const bricks = [];
-  for (let r = 0; r < ROWS; r++) {
+  const { map } = LEVELS[state.level - 1];
+  for (let r = 0; r < map.length; r++) {
     for (let c = 0; c < COLS; c++) {
+      const color = LEGEND[map[r][c]];
+      if (!color) continue; // '.' o celda ausente: hueco
       bricks.push({
         x: BRICK_OFFSET_X + c * (BRICK_W + BRICK_GAP),
         y: BRICK_OFFSET_Y + r * (BRICK_H + BRICK_GAP),
         w: BRICK_W,
         h: BRICK_H,
-        color: BRICK_COLORS[r],
+        color,
         alive: true,
+        hp: color === 'gray' ? GRAY_HP : 1,
       });
     }
   }
@@ -63,9 +140,14 @@ function bounceOffBricks() {
       ball.x + ball.size <= brick.x || ball.x >= brick.x + brick.w ||
       ball.y + ball.size <= brick.y || ball.y >= brick.y + brick.h
     ) continue;
-    brick.alive = false;
-    state.explosions.push({ x: brick.x, y: brick.y, w: brick.w, h: brick.h, color: brick.color, elapsed: 0 });
-    playSound(breakSound);
+    brick.hp--;
+    if (brick.hp <= 0) {
+      brick.alive = false;
+      state.explosions.push({ x: brick.x, y: brick.y, w: brick.w, h: brick.h, color: brick.color, elapsed: 0 });
+      playSound(breakSound);
+    } else {
+      playSound(bounceSound);
+    }
     // El eje de menor penetración decide si el golpe es lateral o vertical.
     const overlapX = Math.min(ball.x + ball.size - brick.x, brick.x + brick.w - ball.x);
     const overlapY = Math.min(ball.y + ball.size - brick.y, brick.y + brick.h - ball.y);
@@ -93,6 +175,7 @@ function stickBall() {
 
 function restartGame() {
   state.lives = START_LIVES;
+  state.level = 1;
   state.bricks = createBricks();
   state.explosions = [];
   state.status = 'ready';
@@ -104,11 +187,11 @@ function launchBall() {
     restartGame();
     return;
   }
-  if (state.status !== 'ready') return;
+  if (state.status !== 'ready' && state.status !== 'intro') return;
   const { ball } = state;
   ball.stuck = false;
-  ball.vx = BALL_SPEED * Math.sin(LAUNCH_ANGLE);
-  ball.vy = -BALL_SPEED * Math.cos(LAUNCH_ANGLE);
+  ball.vx = ballSpeed() * Math.sin(LAUNCH_ANGLE);
+  ball.vy = -ballSpeed() * Math.cos(LAUNCH_ANGLE);
   state.status = 'playing';
 }
 
@@ -145,7 +228,13 @@ function update(dt) {
   // Último bloque destruido: la pelota queda quieta hasta que acabe su explosión.
   if (state.status === 'clearing') {
     if (state.explosions.length === 0) {
-      state.status = 'won';
+      if (state.level < LEVELS.length) {
+        state.level++;
+        state.bricks = createBricks();
+        state.status = 'intro';
+      } else {
+        state.status = 'won';
+      }
       stickBall();
     }
     return;
@@ -191,8 +280,8 @@ function update(dt) {
   ) {
     const hit = (ball.x + ball.size / 2 - (paddle.x + paddle.w / 2)) / (paddle.w / 2);
     const angle = Math.max(-1, Math.min(1, hit)) * MAX_BOUNCE_ANGLE;
-    ball.vx = BALL_SPEED * Math.sin(angle);
-    ball.vy = -BALL_SPEED * Math.cos(angle);
+    ball.vx = ballSpeed() * Math.sin(angle);
+    ball.vy = -ballSpeed() * Math.cos(angle);
     ball.y = paddle.y - ball.size;
     playSound(bounceSound);
   }
@@ -206,8 +295,12 @@ function update(dt) {
 function draw() {
   ctx.clearRect(0, 0, W, H);
   for (const brick of state.bricks) {
-    if (brick.alive) drawSprite(ctx, 'block_' + brick.color, brick.x, brick.y, brick.w, brick.h);
+    if (!brick.alive) continue;
+    // El gray dañado se dibuja atenuado.
+    ctx.globalAlpha = brick.color === 'gray' && brick.hp < GRAY_HP ? 0.6 : 1;
+    drawSprite(ctx, 'block_' + brick.color, brick.x, brick.y, brick.w, brick.h);
   }
+  ctx.globalAlpha = 1;
   for (const explosion of state.explosions) {
     const frame = Math.min(3, Math.floor(explosion.elapsed / EXPLOSION_DURATION * 4));
     drawFrame(ctx, EXPLOSION_FRAMES[explosion.color][frame], explosion.x, explosion.y, explosion.w, explosion.h);
@@ -221,9 +314,12 @@ function draw() {
   ctx.font = '20px sans-serif';
   ctx.textAlign = 'left';
   ctx.fillText('Vidas: ' + state.lives, 20, 32);
+  ctx.textAlign = 'right';
+  ctx.fillText('Nivel: ' + state.level + ' / ' + LEVELS.length, W - 20, 32);
 
   if (state.status === 'gameover') drawOverlay('Game over');
   if (state.status === 'won') drawOverlay('Victoria');
+  if (state.status === 'intro') drawOverlay('Nivel ' + state.level, 'Espacio o clic para empezar');
   if (state.status === 'paused') drawOverlay('Pausa', 'P para reanudar');
 }
 
