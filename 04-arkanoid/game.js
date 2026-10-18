@@ -109,8 +109,14 @@ function launchBall() {
   state.status = 'playing';
 }
 
+function togglePause() {
+  if (state.status === 'playing') state.status = 'paused';
+  else if (state.status === 'paused') state.status = 'playing';
+}
+
 document.addEventListener('keydown', (e) => {
   keys.add(e.code);
+  if (e.code === 'KeyP') togglePause();
   if (e.code === 'Space') {
     e.preventDefault();
     launchBall();
@@ -121,6 +127,7 @@ document.addEventListener('keyup', (e) => keys.delete(e.code));
 canvas.addEventListener('click', launchBall);
 
 canvas.addEventListener('mousemove', (e) => {
+  if (state.status === 'paused') return;
   const rect = canvas.getBoundingClientRect();
   const mouseX = (e.clientX - rect.left) * (W / rect.width);
   state.paddle.x = mouseX - state.paddle.w / 2;
@@ -128,6 +135,7 @@ canvas.addEventListener('mousemove', (e) => {
 });
 
 function update(dt) {
+  if (state.status === 'paused') return;
   const left = keys.has('ArrowLeft') || keys.has('KeyA');
   const right = keys.has('ArrowRight') || keys.has('KeyD');
   state.paddle.x += (right - left) * PADDLE_SPEED * dt;
@@ -198,9 +206,10 @@ function draw() {
 
   if (state.status === 'gameover') drawOverlay('Game over');
   if (state.status === 'won') drawOverlay('Victoria');
+  if (state.status === 'paused') drawOverlay('Pausa', 'P para reanudar');
 }
 
-function drawOverlay(title) {
+function drawOverlay(title, hint = 'Espacio o clic para reiniciar') {
   ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
   ctx.fillRect(0, 0, W, H);
   ctx.fillStyle = '#fff';
@@ -208,7 +217,7 @@ function drawOverlay(title) {
   ctx.font = 'bold 56px sans-serif';
   ctx.fillText(title, W / 2, H / 2);
   ctx.font = '20px sans-serif';
-  ctx.fillText('Espacio o clic para reiniciar', W / 2, H / 2 + 40);
+  ctx.fillText(hint, W / 2, H / 2 + 40);
 }
 
 function loop(time) {
