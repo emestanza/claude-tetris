@@ -1,6 +1,6 @@
 # SPEC 03 — Niveles con dificultad creciente
 
-> **Status:** Aprobado
+> **Status:** Implementado
 > **Depends on:** SPEC 01, SPEC 02
 > **Date:** 2026-10-18
 > **Objective:** Añadir 5 niveles con disposiciones de bloques distintas, bloques `gray` de dos golpes y pelota más rápida en cada nivel, de modo que al limpiar un nivel se pase al siguiente.
@@ -111,21 +111,21 @@ gggggggggggg
 
 ## Criterios de aceptación
 
-- [ ] `index.html` carga sin errores en la consola y la partida completa de 5 niveles no genera ningún error.
-- [ ] La partida empieza en el nivel 1 con 72 bloques, igual que antes, y el HUD muestra "Nivel: 1 / 5".
-- [ ] Cada nivel muestra el número de bloques indicado: 72, 36, 54, 72 y 78.
-- [ ] Las disposiciones de los niveles 2 a 5 coinciden con los mapas de esta spec, con sus huecos y bloques `gray` en las celdas indicadas.
-- [ ] Un bloque `gray` no desaparece al primer golpe, rebota la pelota y suena `ball-bounce.mp3`.
-- [ ] Tras el primer golpe el bloque `gray` se ve atenuado.
-- [ ] Un bloque `gray` desaparece al segundo golpe, suena `break-sound.mp3` y se ve su explosión.
-- [ ] Los bloques de color siguen rompiéndose de un golpe.
-- [ ] La velocidad de la pelota es constante dentro de cada nivel y vale 380, 418, 456, 494 y 532 px/s en los niveles 1 a 5.
-- [ ] Al romper el último bloque de los niveles 1 a 4, se ve la explosión completa y después aparece el overlay "Nivel N+1" con la pelota pegada al paddle.
-- [ ] En el overlay de nivel, `Espacio` o clic lanzan la pelota y el nivel empieza sin overlay.
-- [ ] Perder una vida no cambia el nivel ni sus bloques, y las vidas que quedan pasan al nivel siguiente.
-- [ ] Al romper el último bloque del nivel 5 y terminar su explosión, aparece "Victoria".
-- [ ] Tras "Victoria" o "Game over", `Espacio` o clic reinician en el nivel 1 con 3 vidas y 72 bloques.
-- [ ] `P` sigue pausando y reanudando durante los niveles, y no hace nada en el overlay de nivel.
+- [x] `index.html` carga sin errores en la consola y la partida completa de 5 niveles no genera ningún error.
+- [x] La partida empieza en el nivel 1 con 72 bloques, igual que antes, y el HUD muestra "Nivel: 1 / 5".
+- [x] Cada nivel muestra el número de bloques indicado: 72, 36, 54, 72 y 78.
+- [x] Las disposiciones de los niveles 2 a 5 coinciden con los mapas de esta spec, con sus huecos y bloques `gray` en las celdas indicadas.
+- [x] Un bloque `gray` no desaparece al primer golpe, rebota la pelota y suena `ball-bounce.mp3`.
+- [x] Tras el primer golpe el bloque `gray` se ve atenuado.
+- [x] Un bloque `gray` desaparece al segundo golpe, suena `break-sound.mp3` y se ve su explosión.
+- [x] Los bloques de color siguen rompiéndose de un golpe.
+- [x] La velocidad de la pelota es constante dentro de cada nivel y vale 380, 418, 456, 494 y 532 px/s en los niveles 1 a 5.
+- [x] Al romper el último bloque de los niveles 1 a 4, se ve la explosión completa y después aparece el overlay "Nivel N+1" con la pelota pegada al paddle.
+- [x] En el overlay de nivel, `Espacio` o clic lanzan la pelota y el nivel empieza sin overlay.
+- [x] Perder una vida no cambia el nivel ni sus bloques, y las vidas que quedan pasan al nivel siguiente.
+- [x] Al romper el último bloque del nivel 5 y terminar su explosión, aparece "Victoria".
+- [x] Tras "Victoria" o "Game over", `Espacio` o clic reinician en el nivel 1 con 3 vidas y 72 bloques.
+- [x] `P` sigue pausando y reanudando durante los niveles, y no hace nada en el overlay de nivel.
 
 ---
 
