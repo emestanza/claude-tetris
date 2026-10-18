@@ -85,7 +85,7 @@ Nivel 3 (54 bloques, 456 px/s)   Nivel 4 (72 bloques, 494 px/s)
 hhhhhhhhhhhh                     XhhhhhhhhhhX
 gggggggggggg                     XggggggggggX
 
-Nivel 5 (80 bloques, 532 px/s)
+Nivel 5 (78 bloques, 532 px/s)
 XXXXXXXXXXXX
 rrrrrrrrrrrr
 y.yy.yy.yy.y
@@ -113,7 +113,7 @@ gggggggggggg
 
 - [ ] `index.html` carga sin errores en la consola y la partida completa de 5 niveles no genera ningún error.
 - [ ] La partida empieza en el nivel 1 con 72 bloques, igual que antes, y el HUD muestra "Nivel: 1 / 5".
-- [ ] Cada nivel muestra el número de bloques indicado: 72, 36, 54, 72 y 80.
+- [ ] Cada nivel muestra el número de bloques indicado: 72, 36, 54, 72 y 78.
 - [ ] Las disposiciones de los niveles 2 a 5 coinciden con los mapas de esta spec, con sus huecos y bloques `gray` en las celdas indicadas.
 - [ ] Un bloque `gray` no desaparece al primer golpe, rebota la pelota y suena `ball-bounce.mp3`.
 - [ ] Tras el primer golpe el bloque `gray` se ve atenuado.
