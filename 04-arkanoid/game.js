@@ -94,6 +94,7 @@ function stickBall() {
 function restartGame() {
   state.lives = START_LIVES;
   state.bricks = createBricks();
+  state.explosions = [];
   state.status = 'ready';
   stickBall();
 }
