@@ -18,9 +18,28 @@ const state = {
 };
 
 let lastTime = 0;
+const keys = new Set();
+
+function clampPaddle() {
+  const p = state.paddle;
+  p.x = Math.max(0, Math.min(W - p.w, p.x));
+}
+
+document.addEventListener('keydown', (e) => keys.add(e.code));
+document.addEventListener('keyup', (e) => keys.delete(e.code));
+
+canvas.addEventListener('mousemove', (e) => {
+  const rect = canvas.getBoundingClientRect();
+  const mouseX = (e.clientX - rect.left) * (W / rect.width);
+  state.paddle.x = mouseX - state.paddle.w / 2;
+  clampPaddle();
+});
 
 function update(dt) {
-  // Se rellena en los pasos siguientes.
+  const left = keys.has('ArrowLeft') || keys.has('KeyA');
+  const right = keys.has('ArrowRight') || keys.has('KeyD');
+  state.paddle.x += (right - left) * PADDLE_SPEED * dt;
+  clampPaddle();
 }
 
 function draw() {
