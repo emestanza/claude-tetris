@@ -26,13 +26,61 @@ const LEVELS = [
       'gggggggggggg',
     ],
   },
+  {
+    speed: 418,
+    map: [
+      'r.r.r.r.r.r.',
+      '.y.y.y.y.y.y',
+      'c.c.c.c.c.c.',
+      '.m.m.m.m.m.m',
+      'h.h.h.h.h.h.',
+      '.g.g.g.g.g.g',
+    ],
+  },
+  {
+    speed: 456,
+    map: [
+      '.....XX.....',
+      '....rrrr....',
+      '...yyyyyy...',
+      '..cccccccc..',
+      '.mmmmmmmmmm.',
+      'hhhhhhhhhhhh',
+      'gggggggggggg',
+    ],
+  },
+  {
+    speed: 494,
+    map: [
+      'X..........X',
+      'XrrrrrrrrrrX',
+      'XyyyyyyyyyyX',
+      'X.cccccccc.X',
+      'XmmmmmmmmmmX',
+      'XhhhhhhhhhhX',
+      'XggggggggggX',
+    ],
+  },
+  {
+    speed: 532,
+    map: [
+      'XXXXXXXXXXXX',
+      'rrrrrrrrrrrr',
+      'y.yy.yy.yy.y',
+      'cccccccccccc',
+      'm.mm.mm.mm.m',
+      'hhhhhhhhhhhh',
+      'X..........X',
+      'gggggggggggg',
+    ],
+  },
 ];
 
 const canvas = document.getElementById('board');
 const ctx = canvas.getContext('2d');
 
 const state = {
-  status: 'ready', // 'ready' | 'playing' | 'paused' | 'clearing' | 'gameover' | 'won'
+  status: 'ready', // 'ready' | 'playing' | 'paused' | 'clearing' | 'intro' | 'gameover' | 'won'
   level: 1, // 1..LEVELS.length
   lives: START_LIVES,
   paddle: { x: (W - PADDLE_W) / 2, y: PADDLE_Y, w: PADDLE_W, h: PADDLE_H },
@@ -138,7 +186,7 @@ function launchBall() {
     restartGame();
     return;
   }
-  if (state.status !== 'ready') return;
+  if (state.status !== 'ready' && state.status !== 'intro') return;
   const { ball } = state;
   ball.stuck = false;
   ball.vx = ballSpeed() * Math.sin(LAUNCH_ANGLE);
@@ -179,7 +227,13 @@ function update(dt) {
   // Último bloque destruido: la pelota queda quieta hasta que acabe su explosión.
   if (state.status === 'clearing') {
     if (state.explosions.length === 0) {
-      state.status = 'won';
+      if (state.level < LEVELS.length) {
+        state.level++;
+        state.bricks = createBricks();
+        state.status = 'intro';
+      } else {
+        state.status = 'won';
+      }
       stickBall();
     }
     return;
@@ -264,6 +318,7 @@ function draw() {
 
   if (state.status === 'gameover') drawOverlay('Game over');
   if (state.status === 'won') drawOverlay('Victoria');
+  if (state.status === 'intro') drawOverlay('Nivel ' + state.level, 'Espacio o clic para empezar');
   if (state.status === 'paused') drawOverlay('Pausa', 'P para reanudar');
 }
 
