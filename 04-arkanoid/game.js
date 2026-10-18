@@ -16,6 +16,7 @@ const state = {
   lives: START_LIVES,
   paddle: { x: (W - PADDLE_W) / 2, y: PADDLE_Y, w: PADDLE_W, h: PADDLE_H },
   ball: { x: 0, y: 0, vx: 0, vy: 0, size: BALL_SIZE, stuck: true }, // stuck: sigue al paddle
+  bricks: [], // { x, y, w, h, color, alive }
 };
 
 const LAUNCH_ANGLE = 30 * Math.PI / 180; // respecto a la vertical, hacia la derecha
@@ -26,6 +27,48 @@ const keys = new Set();
 function clampPaddle() {
   const p = state.paddle;
   p.x = Math.max(0, Math.min(W - p.w, p.x));
+}
+
+function createBricks() {
+  const bricks = [];
+  for (let r = 0; r < ROWS; r++) {
+    for (let c = 0; c < COLS; c++) {
+      bricks.push({
+        x: BRICK_OFFSET_X + c * (BRICK_W + BRICK_GAP),
+        y: BRICK_OFFSET_Y + r * (BRICK_H + BRICK_GAP),
+        w: BRICK_W,
+        h: BRICK_H,
+        color: BRICK_COLORS[r],
+        alive: true,
+      });
+    }
+  }
+  return bricks;
+}
+
+function bounceOffBricks() {
+  const { ball } = state;
+  for (const brick of state.bricks) {
+    if (
+      !brick.alive ||
+      ball.x + ball.size <= brick.x || ball.x >= brick.x + brick.w ||
+      ball.y + ball.size <= brick.y || ball.y >= brick.y + brick.h
+    ) continue;
+    brick.alive = false;
+    // El eje de menor penetración decide si el golpe es lateral o vertical.
+    const overlapX = Math.min(ball.x + ball.size - brick.x, brick.x + brick.w - ball.x);
+    const overlapY = Math.min(ball.y + ball.size - brick.y, brick.y + brick.h - ball.y);
+    const fromLeft = ball.x + ball.size / 2 < brick.x + brick.w / 2;
+    const fromTop = ball.y + ball.size / 2 < brick.y + brick.h / 2;
+    if (overlapX < overlapY) {
+      ball.vx = fromLeft ? -Math.abs(ball.vx) : Math.abs(ball.vx);
+      ball.x += fromLeft ? -overlapX : overlapX;
+    } else {
+      ball.vy = fromTop ? -Math.abs(ball.vy) : Math.abs(ball.vy);
+      ball.y += fromTop ? -overlapY : overlapY;
+    }
+    return;
+  }
 }
 
 function stickBall() {
@@ -88,6 +131,8 @@ function update(dt) {
     ball.y = 0;
     ball.vy = Math.abs(ball.vy);
   }
+  bounceOffBricks();
+
   const paddle = state.paddle;
   if (
     ball.vy > 0 &&
@@ -109,6 +154,9 @@ function update(dt) {
 
 function draw() {
   ctx.clearRect(0, 0, W, H);
+  for (const brick of state.bricks) {
+    if (brick.alive) drawSprite(ctx, 'block_' + brick.color, brick.x, brick.y, brick.w, brick.h);
+  }
   const p = state.paddle;
   drawSprite(ctx, 'paddle', p.x, p.y, p.w, p.h);
   const b = state.ball;
@@ -122,6 +170,8 @@ function loop(time) {
   draw();
   requestAnimationFrame(loop);
 }
+
+state.bricks = createBricks();
 
 loadSpritesheet(() => {
   requestAnimationFrame((time) => {
