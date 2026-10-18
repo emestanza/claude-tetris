@@ -1,6 +1,6 @@
 # SPEC 02 — Animación de explosión al destruir bloques
 
-> **Status:** Aprobado
+> **Status:** Implementado
 > **Depends on:** SPEC 01
 > **Date:** 2026-10-18
 > **Objective:** Mostrar una animación de explosión de 4 frames, con el color del bloque, cada vez que la pelota destruye un bloque.
@@ -64,17 +64,17 @@ Convenciones:
 
 ## Criterios de aceptación
 
-- [ ] Al destruir un bloque aparece una explosión en su posición, con las mismas medidas que el bloque (56×28).
-- [ ] La explosión usa los frames de `EXPLOSION_FRAMES` del color del bloque destruido.
-- [ ] La explosión muestra los 4 frames en orden y desaparece a los 150 ms.
-- [ ] La pelota no colisiona con un bloque ya destruido mientras se reproduce su explosión.
-- [ ] Varias explosiones simultáneas se reproducen a la vez sin interferir.
-- [ ] Las explosiones se dibujan detrás del paddle y de la pelota.
-- [ ] Al pausar con `P`, las explosiones activas quedan congeladas, y al reanudar continúan desde el mismo frame.
-- [ ] Al reiniciar tras Game over o Victoria no queda ninguna explosión en pantalla.
-- [ ] Al destruir el último bloque la pelota se detiene, se ve la explosión completa y después aparece "Victoria".
-- [ ] `break-sound.mp3` sigue sonando una vez por bloque, en el momento del golpe.
-- [ ] La consola no muestra errores durante una partida completa.
+- [x] Al destruir un bloque aparece una explosión en su posición, con las mismas medidas que el bloque (56×28).
+- [x] La explosión usa los frames de `EXPLOSION_FRAMES` del color del bloque destruido.
+- [x] La explosión muestra los 4 frames en orden y desaparece a los 150 ms.
+- [x] La pelota no colisiona con un bloque ya destruido mientras se reproduce su explosión.
+- [x] Varias explosiones simultáneas se reproducen a la vez sin interferir.
+- [x] Las explosiones se dibujan detrás del paddle y de la pelota.
+- [x] Al pausar con `P`, las explosiones activas quedan congeladas, y al reanudar continúan desde el mismo frame.
+- [x] Al reiniciar tras Game over o Victoria no queda ninguna explosión en pantalla.
+- [x] Al destruir el último bloque la pelota se detiene, se ve la explosión completa y después aparece "Victoria".
+- [x] `break-sound.mp3` sigue sonando una vez por bloque, en el momento del golpe.
+- [x] La consola no muestra errores durante una partida completa.
 
 ---
 
