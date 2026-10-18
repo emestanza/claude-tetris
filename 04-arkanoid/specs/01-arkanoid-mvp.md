@@ -1,6 +1,6 @@
 # SPEC 01 — MVP jugable de Arkanoid
 
-> **Status:** Aprobado
+> **Status:** Implementado
 > **Depends on:** ninguna
 > **Date:** 2026-10-18
 > **Objective:** Crear un Arkanoid jugable de un solo nivel, con paddle, pelota, bloques, vidas, sonidos y reinicio, en HTML, CSS y JavaScript puro.
