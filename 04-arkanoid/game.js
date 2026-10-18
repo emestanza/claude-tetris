@@ -92,9 +92,14 @@ function bounceOffBricks() {
       ball.x + ball.size <= brick.x || ball.x >= brick.x + brick.w ||
       ball.y + ball.size <= brick.y || ball.y >= brick.y + brick.h
     ) continue;
-    brick.alive = false;
-    state.explosions.push({ x: brick.x, y: brick.y, w: brick.w, h: brick.h, color: brick.color, elapsed: 0 });
-    playSound(breakSound);
+    brick.hp--;
+    if (brick.hp <= 0) {
+      brick.alive = false;
+      state.explosions.push({ x: brick.x, y: brick.y, w: brick.w, h: brick.h, color: brick.color, elapsed: 0 });
+      playSound(breakSound);
+    } else {
+      playSound(bounceSound);
+    }
     // El eje de menor penetración decide si el golpe es lateral o vertical.
     const overlapX = Math.min(ball.x + ball.size - brick.x, brick.x + brick.w - ball.x);
     const overlapY = Math.min(ball.y + ball.size - brick.y, brick.y + brick.h - ball.y);
@@ -235,8 +240,12 @@ function update(dt) {
 function draw() {
   ctx.clearRect(0, 0, W, H);
   for (const brick of state.bricks) {
-    if (brick.alive) drawSprite(ctx, 'block_' + brick.color, brick.x, brick.y, brick.w, brick.h);
+    if (!brick.alive) continue;
+    // El gray dañado se dibuja atenuado.
+    ctx.globalAlpha = brick.color === 'gray' && brick.hp < GRAY_HP ? 0.6 : 1;
+    drawSprite(ctx, 'block_' + brick.color, brick.x, brick.y, brick.w, brick.h);
   }
+  ctx.globalAlpha = 1;
   for (const explosion of state.explosions) {
     const frame = Math.min(3, Math.floor(explosion.elapsed / EXPLOSION_DURATION * 4));
     drawFrame(ctx, EXPLOSION_FRAMES[explosion.color][frame], explosion.x, explosion.y, explosion.w, explosion.h);
