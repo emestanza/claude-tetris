@@ -175,6 +175,7 @@ function stickBall() {
 
 function restartGame() {
   state.lives = START_LIVES;
+  state.level = 1;
   state.bricks = createBricks();
   state.explosions = [];
   state.status = 'ready';
