@@ -15,3 +15,12 @@ https://github.com/Klerith/fernando-skills
 npx skills@latest add Klerith/fernando-skills
 ```
 
+
+## Commands
+
+```bash
+npm run dev     # next dev (Turbopack)
+npm run build   # next build
+npm run start   # next start (after build)
+npm run lint    # eslint (flat config, next core-web-vitals + typescript)
+```

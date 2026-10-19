@@ -8,15 +8,6 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Arcade Vault is meant to be a platform for playing games online and competing for the highest score (see `README.md`, written in Spanish). It is currently an untouched `create-next-app` scaffold (`app/page.tsx`, default metadata and `public/` assets are still the boilerplate), so there is little application code yet.
 
-## Commands
-
-```bash
-npm run dev     # next dev (Turbopack)
-npm run build   # next build
-npm run start   # next start (after build)
-npm run lint    # eslint (flat config, next core-web-vitals + typescript)
-```
-
 No test runner is configured. Type-check with `npx tsc --noEmit`.
 
 ## Next.js version caveat
@@ -33,3 +24,7 @@ This uses Next.js 16.4.2 / React 19.3, which has breaking changes relative to co
 ## Spec-driven workflow
 
 The project follows Spec-Driven Development using the `/spec` and `/spec-impl` skills from `Klerith/fernando-skills` (installed via `npx skills@latest add Klerith/fernando-skills`). The `spec` skill lives in the repo root at `.agents/skills/spec` (symlinked from `.claude/skills/spec`). See `../04-arkanoid/CLAUDE.md` for how specs are structured and used in the sibling project.
+
+
+## Skill
+Usa siempre /frontend-design cuando requieras hacer diseños HTML
