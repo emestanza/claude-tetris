@@ -102,23 +102,23 @@ Antes del paso 1, leer en `node_modules/next/dist/docs/` lo relativo a `cacheCom
 
 ## Criterios de aceptación
 
-- [ ] `npx tsc --noEmit` y `npm run lint` terminan sin errores.
-- [ ] `npm run build` termina sin errores.
-- [ ] `/` muestra la landing con las 7 secciones: hero, por qué, juegos disponibles, estadísticas, actividad en vivo, precios y CTA final.
-- [ ] `/games` muestra los 8 juegos de `GAMES` y los chips `TODOS`, `ARCADE`, `PUZZLE`, `SHOOTER`, `VERSUS` filtran la lista.
-- [ ] `/juegos` y `/juegos/<id>` devuelven la página 404 del tema (no existen redirects).
-- [ ] `/games/<id>` muestra el detalle y `/games/<id>/jugar` el reproductor, con el mismo comportamiento que en la SPEC 01; `/games/no-existe` muestra el 404.
-- [ ] La sección "Juegos disponibles ahora" muestra exactamente los 6 primeros juegos de `GAMES`; hacer clic en una tarjeta navega a `/games/<id>`.
-- [ ] `EXPLORAR JUEGOS`, `VER TODOS LOS JUEGOS →` e `INSERTAR MONEDA →` navegan a `/games`.
-- [ ] `CREAR CUENTA` y `EMPEZAR GRATIS →` navegan a `/auth`; `VER SALÓN →` navega a `/salon`.
-- [ ] La sección "Actividad en vivo" muestra 7 puntuaciones recientes y un top de 5 jugadores con los datos de `LATEST_SCORES` y `TOP_TODAY`.
-- [ ] Las secciones con clase `.reveal` empiezan ocultas y reciben la clase `in` al entrar en pantalla; con `prefers-reduced-motion` el contenido sigue visible.
-- [ ] La nav muestra "Inicio", "Biblioteca" y "Salón de la Fama" (barra y panel móvil); solo el enlace de la ruta actual está resaltado y el logo lleva a `/`.
-- [ ] Tras iniciar sesión o pulsar `JUGAR COMO INVITADO` se redirige a `/`.
-- [ ] `VOLVER A LA BIBLIOTECA` en `/salon` navega a `/games`; `VOLVER AL VAULT` navega a `/`.
-- [ ] No quedan referencias a `/juegos` en `app/`, `components/` ni `lib/` (`grep -rn "juegos" app components lib` solo devuelve textos visibles, no rutas).
-- [ ] A 375 px de ancho `/` y `/games` no tienen scroll horizontal.
-- [ ] La carga inicial de `/` no produce advertencias de hidratación ni errores en la consola.
+- [x] `npx tsc --noEmit` y `npm run lint` terminan sin errores.
+- [x] `npm run build` termina sin errores.
+- [x] `/` muestra la landing con las 7 secciones: hero, por qué, juegos disponibles, estadísticas, actividad en vivo, precios y CTA final.
+- [x] `/games` muestra los 8 juegos de `GAMES` y los chips `TODOS`, `ARCADE`, `PUZZLE`, `SHOOTER`, `VERSUS` filtran la lista.
+- [x] `/juegos` y `/juegos/<id>` devuelven la página 404 del tema (no existen redirects).
+- [x] `/games/<id>` muestra el detalle y `/games/<id>/jugar` el reproductor, con el mismo comportamiento que en la SPEC 01; `/games/no-existe` muestra el 404.
+- [x] La sección "Juegos disponibles ahora" muestra exactamente los 6 primeros juegos de `GAMES`; hacer clic en una tarjeta navega a `/games/<id>`.
+- [x] `EXPLORAR JUEGOS`, `VER TODOS LOS JUEGOS →` e `INSERTAR MONEDA →` navegan a `/games`.
+- [x] `CREAR CUENTA` y `EMPEZAR GRATIS →` navegan a `/auth`; `VER SALÓN →` navega a `/salon`.
+- [x] La sección "Actividad en vivo" muestra 7 puntuaciones recientes y un top de 5 jugadores con los datos de `LATEST_SCORES` y `TOP_TODAY`.
+- [x] Las secciones con clase `.reveal` empiezan ocultas y reciben la clase `in` al entrar en pantalla; con `prefers-reduced-motion` el contenido sigue visible.
+- [x] La nav muestra "Inicio", "Biblioteca" y "Salón de la Fama" (barra y panel móvil); solo el enlace de la ruta actual está resaltado y el logo lleva a `/`.
+- [x] Tras iniciar sesión o pulsar `JUGAR COMO INVITADO` se redirige a `/`.
+- [x] `VOLVER A LA BIBLIOTECA` en `/salon` navega a `/games`; `VOLVER AL VAULT` navega a `/`.
+- [x] No quedan referencias a `/juegos` en `app/`, `components/` ni `lib/` (`grep -rn "juegos" app components lib` solo devuelve textos visibles, no rutas).
+- [x] A 375 px de ancho `/` y `/games` no tienen scroll horizontal.
+- [x] La carga inicial de `/` no produce advertencias de hidratación ni errores en la consola.
 
 ---
 
